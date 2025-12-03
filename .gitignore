@@ -1,6 +1,7 @@
 # ignore input data and outputs
 data/*
 output/*
+input/*
 
 # Other files
 *.Rproj
