@@ -1,0 +1,10 @@
+# ignore input data and outputs
+data/*
+output/*
+
+# Other files
+*.Rproj
+*.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
