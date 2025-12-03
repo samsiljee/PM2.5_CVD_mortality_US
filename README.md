@@ -11,3 +11,6 @@ Please follow the "Analysis description" document for
   4) calculation of attributable burden;
   5) calculation of attributable burden changes; and
   6) sensitivity analysis.
+
+# Link to paper:
+doi.org/10.1038/s41562-023-01694-7
