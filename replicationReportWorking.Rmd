@@ -11,11 +11,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 # Load Packages
-
+library(readr) # read csv file in
 ```
 
 ```{r}
-# Setup 
+# Setup - Load in data file
+# set working directory as source file location
+# Read in upzipped .csv data from "input" folder within
+
+df1 <- read_csv("input/Data_2000-2016_county_monthly_combined.csv")
 
 ```
 
