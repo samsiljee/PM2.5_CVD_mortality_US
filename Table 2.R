@@ -14,8 +14,12 @@ library(tsModel)
 library(phtt)
 library(splines)
 
+# Assign data
+data <- df4
+
 ## select outcome variables
-outcomes <- colnames(data)[16:41]
+# outcomes <- colnames(data)[16:41]
+outcomes <- "CVD.adj"
 
 ## 12-month moving average of PM2.5 concentration
 data.list <- split(data, as.factor(data$GEOID))
