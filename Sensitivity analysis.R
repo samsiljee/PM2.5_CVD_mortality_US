@@ -6,6 +6,13 @@
 #### Feb 15, 2024                                                                                         ####
 ##############################################################################################################
 
+library(devtools)
+devtools::install_github("lidom/R-package-phtt", force = TRUE)
+
+library("phtt")
+citation("phtt")
+
+
 library(dplyr)
 library(lubridate)
 library(tsModel)
