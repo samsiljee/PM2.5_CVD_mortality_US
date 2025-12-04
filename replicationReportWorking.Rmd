@@ -26,43 +26,43 @@ library(sf) # foor reading .shp data
 df1 <- read_csv("input/Data_2000-2016_county_monthly_combined.csv")
 
 df2 <- rbind(
-    read_csv("input/CompMort_01_08.csv"),
-    read_csv("input/CompMort_09_16.csv")
+  read_csv("input/CompMort_01_08.csv"),
+  read_csv("input/CompMort_09_16.csv")
 )
 
 # Merge data
 df3 <- merge(
-    mutate(filter(df2, !is.na("Year")), GEOID = `County Code`, year = Year),
-    df1,
-    by = c("GEOID", "year")
-) 
+  mutate(filter(df2, !is.na("Year")), GEOID = `County Code`, year = Year),
+  df1,
+  by = c("GEOID", "year")
+)
 
 # Clean data
 df4 <- df3 %>%
-    mutate(
-        CVD.adj = as.numeric(`Age Adjusted Rate`, na.rm = TRUE),
-        GEOID = as.factor(GEOID)
-        ) %>% # change column classes
-    dplyr::select(
-        c(
-            GEOID,
-            year_month,
-            year,
-            month,
-            PM25,
-            NO2,
-            O3,
-            Tmean,
-            dewT,
-            pop.total,
-            pop.Male,
-            pop.Female,
-            pop.White,
-            pop.Black,
-            pop.Hispanic,
-            CVD.adj
-        )
-    ) # Select required columns
+  mutate(
+    CVD.adj = as.numeric(`Age Adjusted Rate`, na.rm = TRUE),
+    GEOID = as.factor(GEOID)
+  ) %>% # change column classes
+  dplyr::select(
+    c(
+      GEOID,
+      year_month,
+      year,
+      month,
+      PM25,
+      NO2,
+      O3,
+      Tmean,
+      dewT,
+      pop.total,
+      pop.Male,
+      pop.Female,
+      pop.White,
+      pop.Black,
+      pop.Hispanic,
+      CVD.adj
+    )
+  ) # Select required columns
 
 US.county <- st_read("input/US_continental_counties_3103/US_continental_counties_3103.shp")
 ```
@@ -95,18 +95,18 @@ PM25.ave <- data %>%
 
 ## PM2.5 change (Figure 1b)
 PM25.2000 <- data %>%
-  filter(year==2000) %>%
+  filter(year == 2000) %>%
   group_by(GEOID) %>%
   summarise(PM25_2000 = mean(PM25))
 
 PM25.2016 <- data %>%
-  filter(year==2016) %>%
+  filter(year == 2016) %>%
   group_by(GEOID) %>%
   summarise(PM25_2016 = mean(PM25))
 
 PM25.change <- PM25.2000 %>%
-  left_join(PM25.2016, by=c("GEOID")) %>%
-  mutate(PM25_chg = (PM25_2016 - PM25_2000)/PM25_2000 * 100) %>%
+  left_join(PM25.2016, by = c("GEOID")) %>%
+  mutate(PM25_chg = (PM25_2016 - PM25_2000) / PM25_2000 * 100) %>%
   dplyr::select(GEOID, PM25_chg)
 
 
@@ -115,9 +115,8 @@ PM25.ave$GEOID <- as.character(PM25.ave$GEOID)
 PM25.change$GEOID <- as.character(PM25.change$GEOID)
 
 US.county.F1 <- US.county %>%
-  left_join(PM25.ave, by="GEOID") %>%
-  left_join(PM25.change, by="GEOID")
-
+  left_join(PM25.ave, by = "GEOID") %>%
+  left_join(PM25.change, by = "GEOID")
 ```
 
 #### Figre 1ab (SJH code)
@@ -136,16 +135,16 @@ US.county.F1 <- US.county %>%
 plot(st_geometry(US.county.F1))
 
 # basic ggplot test of PM25_mean plot
-ggplot() + 
-  geom_sf(data = US.county.F1, aes(fill = PM25_mean)) + 
-  #scale_y_continuous(breaks = 34:36)
+ggplot() +
+  geom_sf(data = US.county.F1, aes(fill = PM25_mean)) +
+  # scale_y_continuous(breaks = 34:36)
   theme_bw()
 ```
 
 ##### Data prep for Fig 1a & 1b
 
 ```{r}
-# using 
+# using
 US.county.F1ab <- US.county.F1 %>%
   mutate(
     PM25_mean_rank = case_when(
@@ -157,7 +156,7 @@ US.county.F1ab <- US.county.F1 %>%
       TRUE ~ "F" # Default case: if none of the above are true
     )
   ) %>%
-    mutate(
+  mutate(
     PM25_chg_rank = case_when(
       PM25_chg > 20 ~ "20.00-52.99",
       PM25_chg > 0 ~ "0.00-20.00",
@@ -178,14 +177,19 @@ fig_1b_colors <- c("#313695", "#74ADD1", "#E0F3F8", "#F98E52", "#A50026")
 ##### Figure 1a replication 
 
 ```{r}
-
-fig_1a <- ggplot() + 
+fig_1a <- ggplot() +
   geom_sf(data = US.county.F1ab, aes(fill = PM25_mean_rank)) +
-  scale_fill_manual(name = "Average PM2.5 concentration",
-                    breaks=c("2.15-3.00", "3.00-6.00", "6.00-9.00",
-                             "0.00-20.00", "12.01-13.74"),
-                    values = c("#006837", "#86CB67", "#FFFFBF",
-                               "#F98E52", "#A50026")) + 
+  scale_fill_manual(
+    name = "Average PM2.5 concentration",
+    breaks = c(
+      "2.15-3.00", "3.00-6.00", "6.00-9.00",
+      "0.00-20.00", "12.01-13.74"
+    ),
+    values = c(
+      "#006837", "#86CB67", "#FFFFBF",
+      "#F98E52", "#A50026"
+    )
+  ) +
   labs(title = "Figure 1a") +
   theme_bw()
 
@@ -195,14 +199,19 @@ fig_1a
 ##### Figure 1b Replication
 
 ```{r}
-
-fig_1b <- ggplot() + 
+fig_1b <- ggplot() +
   geom_sf(data = US.county.F1ab, aes(fill = PM25_chg_rank)) +
-  scale_fill_manual(name = "Change in PM2.5 concentration (%)",
-                    breaks= c("-60.43--40.00", "-40.01--20.00", "-20.00-0.00",
-                             "0.00-20.00", "20.00-52.99"),
-                    values = c("#313695", "#74ADD1", "#E0F3F8",
-                      "#F98E52", "#A50026")) + 
+  scale_fill_manual(
+    name = "Change in PM2.5 concentration (%)",
+    breaks = c(
+      "-60.43--40.00", "-40.01--20.00", "-20.00-0.00",
+      "0.00-20.00", "20.00-52.99"
+    ),
+    values = c(
+      "#313695", "#74ADD1", "#E0F3F8",
+      "#F98E52", "#A50026"
+    )
+  ) +
   labs(title = "Figure 1b") +
   theme_bw()
 
@@ -220,16 +229,20 @@ library(cowplot)
 library(MetBrewer)
 
 ## filter for cardiovascular mortality data
-mortality.CVD  <- mortality %>%
+mortality.CVD <- mortality %>%
   filter(ICD.category == "I" & ICD.number >= 0 & ICD.number <= 99.99) %>%
   dplyr::select(year_month, res_FIPS, race, hispanic) %>%
   rename(GEOID = res_FIPS) %>%
-  mutate(race_cat = case_when(race==1 & hispanic==0 ~ "non-Hispanic White",
-                              race==2 & hispanic==0 ~ "non-Hispanic Black",
-                              hispanic==1 ~ "Hispanic"),
-         race_cat = factor(race_cat, levels = c("non-Hispanic White","non-Hispanic Black","Hispanic"))) %>%
+  mutate(
+    race_cat = case_when(
+      race == 1 & hispanic == 0 ~ "non-Hispanic White",
+      race == 2 & hispanic == 0 ~ "non-Hispanic Black",
+      hispanic == 1 ~ "Hispanic"
+    ),
+    race_cat = factor(race_cat, levels = c("non-Hispanic White", "non-Hispanic Black", "Hispanic"))
+  ) %>%
   dplyr::select(GEOID, year_month, race_cat) %>%
-  filter(is.na(race_cat)==F)
+  filter(is.na(race_cat) == F)
 
 rm(mortality)
 
@@ -240,30 +253,30 @@ data.AP <- data %>%
 
 ## 12-month moving average of PM2.5 concentration
 data.list <- split(data.AP, as.factor(data$GEOID))
-for (j in 1:length(data.list)){
-  data.list[[j]][,paste0("PM25_lag0",11)]<- tsModel::runMean(data.list[[j]]$PM25, c(0:11))
+for (j in 1:length(data.list)) {
+  data.list[[j]][, paste0("PM25_lag0", 11)] <- tsModel::runMean(data.list[[j]]$PM25, c(0:11))
 }
 
 data.AP.01to16 <- bind_rows(data.list) %>%
   filter(year >= 2001) %>%
-  dplyr::select(-PM25,-year)
+  dplyr::select(-PM25, -year)
 
 
 ## individual-level long-term PM2.5 exposure
 AP.individual <- mortality.CVD %>%
-  left_join(data.AP, by=c("GEOID","year_month")) %>%
-  left_join(data.AP.01to16, by=c("GEOID","year_month")) 
+  left_join(data.AP, by = c("GEOID", "year_month")) %>%
+  left_join(data.AP.01to16, by = c("GEOID", "year_month"))
 
 ## make the violin plot
 theme_set(theme_cowplot())
 
-plot.individual.12M <- ggplot(AP.individual, aes(x=race_cat, y=PM25_lag011, fill=race_cat)) +
+plot.individual.12M <- ggplot(AP.individual, aes(x = race_cat, y = PM25_lag011, fill = race_cat)) +
   geom_violin() +
   scale_fill_met_d("Kandinsky", direction = 1) +
-  geom_boxplot(width=0.1, color="grey", alpha=0.2)+
-  xlab("")+
+  geom_boxplot(width = 0.1, color = "grey", alpha = 0.2) +
+  xlab("") +
   ylab("12-month moving average of PM2.5") +
-  theme(legend.position="none")
+  theme(legend.position = "none")
 ```
 
 ## Sam Section
