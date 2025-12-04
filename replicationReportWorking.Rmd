@@ -57,7 +57,14 @@ df4 <- df3 %>%
             NO2,
             O3,
             Tmean,
-            dewT
+            dewT,
+            pop.total,
+            pop.Male,
+            pop.Female,
+            pop.White,
+            pop.Black,
+            pop.Hispanic,
+            CVD.adj
         )
     ) # Select required columns
 ```
