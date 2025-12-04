@@ -12,7 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 # Load Packages
 library(readr) # read csv file in
-library(dplyr) # Data manipulation
+library(dplyr) # wrangling
+library(lubridate) # dates
+library(sf) # foor reading .shp data
+
 ```
 
 ```{r}
@@ -70,7 +73,44 @@ summary(cars)
 
 ## Steph Section
 
-Code goes here
+
+```{r}
+# using packages dplyr, lubridate, & sf
+
+data <- df1
+
+
+## average PM2.5 (Figure 1a)
+PM25.ave <- data %>%
+  group_by(GEOID) %>%
+  summarise(PM25_mean = mean(PM25))
+
+## PM2.5 change (Figure 1b)
+PM25.2000 <- data %>%
+  filter(year==2000) %>%
+  group_by(GEOID) %>%
+  summarise(PM25_2000 = mean(PM25))
+
+PM25.2016 <- data %>%
+  filter(year==2016) %>%
+  group_by(GEOID) %>%
+  summarise(PM25_2016 = mean(PM25))
+
+PM25.change <- PM25.2000 %>%
+  left_join(PM25.2016, by=c("GEOID")) %>%
+  mutate(PM25_chg = (PM25_2016 - PM25_2000)/PM25_2000 * 100) %>%
+  dplyr::select(GEOID, PM25_chg)
+
+
+## join with shapefile
+PM25.ave$GEOID <- as.character(PM25.ave$GEOID)
+PM25.change$GEOID <- as.character(PM25.change$GEOID)
+
+US.county.F1 <- US.county %>%
+  left_join(PM25.ave, by="GEOID") %>%
+  left_join(PM25.change, by="GEOID")
+
+```
 
 ## Sam Section
 
