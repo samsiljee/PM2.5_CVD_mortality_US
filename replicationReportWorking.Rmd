@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Load Packages
 library(readr) # read csv file in
 library(dplyr) # wrangling
+library(tidyr) # Remove NAs in merged data
 library(lubridate) # dates
 library(sf) # foor reading .shp data
 
@@ -24,29 +25,25 @@ library(sf) # foor reading .shp data
 # Read in upzipped .csv data from "input" folder within
 
 df1 <- read_csv("input/Data_2000-2016_county_monthly_combined.csv")
-df2 <- read_csv("input/CompMort.csv")
+df2 <- rbind(
+    read_csv("input/CompMort_01_08.csv"),
+    read_csv("input/CompMort_09_16.csv")
+)
 
 # Merge data
 df3 <- merge(
-    df2,
+    mutate(df2, GEOID = `County Code`, year = Year),
     df1,
     all.x = TRUE,
-    by.x = "County Code",
-    by.y = "GEOID"
+    by = c("GEOID", "year")
 ) 
 
 # Clean data
 df4 <- df3 %>%
     mutate(
-        CVD.adj = `Age Adjusted Rate`,
-        GEOID = `County Code`
-        ) %>% # Add column name consistent with paper
-    filter(!is.na(CVD.adj)) %>% # Remove missing mortality data
-    mutate(
-        across(
-            c(GEOID), as.factor
-        )
-    ) %>% # Change county to factor
+        CVD.adj = as.numeric(`Age Adjusted Rate`, na.rm = TRUE),
+        GEOID = as.factor(GEOID)
+        ) %>% # change column classes
     dplyr::select(
         c(
             GEOID,
@@ -66,9 +63,9 @@ df4 <- df3 %>%
             pop.Hispanic,
             CVD.adj
         )
-    ) # Select required columns
+    ) %>% # Select required columns
+    drop_na() # Remove missing values
 ```
-
 
 ## Iggy Section
 
