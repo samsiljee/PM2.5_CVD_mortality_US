@@ -14,8 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readr) # read csv file in
 library(dplyr) # wrangling
 library(tidyr) # Remove NAs in merged data
-library(lubridate) # dates
-library(sf) # foor reading .shp data
+library(lubridate) # dates | not used?
+library(sf) # for reading .shp data
+library(tsModel) # for runMean() - e.g. fig 1c
+library(ggplot2) # graphing
+
 ```
 
 ```{r}
@@ -64,6 +67,8 @@ df4 <- df3 %>%
     )
   ) # Select required columns
 
+
+# Read in .shp US countys geospatial data us sf package
 US.county <- st_read("input/US_continental_counties_3103/US_continental_counties_3103.shp")
 ```
 
@@ -83,6 +88,7 @@ summary(cars)
 
 ```{r}
 # using packages dplyr, lubridate, & sf
+# lubridate not actually used?
 
 # SJH added
 # re assign df1 "Data_2000-2016_county_monthly_combined.csv" to data
@@ -144,7 +150,7 @@ ggplot() +
 ##### Data prep for Fig 1a & 1b
 
 ```{r}
-# using
+# Make new df with categoies/ranks columns (in prep for color mapping on US map)
 US.county.F1ab <- US.county.F1 %>%
   mutate(
     PM25_mean_rank = case_when(
@@ -174,16 +180,16 @@ fig_1a_colors <- c("#006837", "#86CB67", "#FFFFBF", "#F98E52", "#A50026")
 fig_1b_colors <- c("#313695", "#74ADD1", "#E0F3F8", "#F98E52", "#A50026")
 ```
 
-##### Figure 1a replication 
+##### Figure 1a replication
 
 ```{r}
 fig_1a <- ggplot() +
   geom_sf(data = US.county.F1ab, aes(fill = PM25_mean_rank)) +
   scale_fill_manual(
-    name = "Average PM2.5 concentration",
+    name = "Average PM2.5 \nconcentration (\u00B5g/m\u00b3)",
     breaks = c(
       "2.15-3.00", "3.00-6.00", "6.00-9.00",
-      "0.00-20.00", "12.01-13.74"
+      "9.00-12.00", "12.01-13.74"
     ),
     values = c(
       "#006837", "#86CB67", "#FFFFBF",
@@ -202,7 +208,7 @@ fig_1a
 fig_1b <- ggplot() +
   geom_sf(data = US.county.F1ab, aes(fill = PM25_chg_rank)) +
   scale_fill_manual(
-    name = "Change in PM2.5 concentration (%)",
+    name = "Change in PM2.5 \nconcentration (%)",
     breaks = c(
       "-60.43--40.00", "-40.01--20.00", "-20.00-0.00",
       "0.00-20.00", "20.00-52.99"
@@ -213,7 +219,7 @@ fig_1b <- ggplot() +
     )
   ) +
   labs(title = "Figure 1b") +
-  theme_bw()
+  theme_bw() 
 
 fig_1b
 ```
@@ -277,6 +283,95 @@ plot.individual.12M <- ggplot(AP.individual, aes(x = race_cat, y = PM25_lag011, 
   xlab("") +
   ylab("12-month moving average of PM2.5") +
   theme(legend.position = "none")
+```
+
+##### Data Checking for Fig1c
+
+```{r}
+
+```
+
+#### Figure 1c (SJH code)
+
+NOTE - COMEBACK TO - TO FIGURE OUT MORTALITY BY RACE DATA FIRST!!!
+
+```{r}
+# mortality.CVD_df4 <- df4 %>%
+  
+
+
+# Taken directly from their code 
+## select PM2.5 data
+data.AP <- data %>%
+  dplyr::select(GEOID, year_month, year, PM25)
+
+## 12-month moving average of PM2.5 concentration
+data.list <- split(data.AP, as.factor(data$GEOID))
+for (j in 1:length(data.list)) {
+  data.list[[j]][, paste0("PM25_lag0", 11)] <- tsModel::runMean(data.list[[j]]$PM25, c(0:11))
+}
+
+data.AP.01to16 <- bind_rows(data.list) %>%
+  filter(year >= 2001) %>%
+  dplyr::select(-PM25, -year)   
+
+
+
+
+```
+
+### Supp Fig 1
+
+### Supp Fig 2
+
+-   Works and generally appears similar but not as granular as the one in the paper...?
+
+    -   Also why does it go up in 2017???
+
+        -   <https://lubridate.tidyverse.org/reference/as_date.html>
+
+```{r}
+# Cut off at <5000
+sfig_2 <- df4 %>%
+  filter(pop.total < 5000) %>%
+  mutate(year_month = lubridate::ym(year_month)) %>% 
+  group_by(year_month) %>%
+  mutate(monthly_mean_CVD.adj = mean(CVD.adj, na.rm = TRUE)) %>%
+  ggplot(aes(x = year_month, y = monthly_mean_CVD.adj)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y-%m", date_breaks = "6 month",
+               labels = ) +
+  labs(title = "Supplementary Figure 2 (pop <5000)") +
+  #geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) 
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5), # vertical x labels
+        )
+  
+sfig_2
+```
+
+Decrease appears more stable when the population cut off is \<50000 rather than \<5000
+
+```{r}
+# Cut off at <50000
+sfig_2.v2 <- df4 %>%
+  filter(pop.total < 50000) %>%
+  mutate(year_month = lubridate::ym(year_month)) %>% 
+  group_by(year_month) %>%
+  mutate(monthly_mean_CVD.adj = mean(CVD.adj, na.rm = TRUE)) %>%
+  ggplot(aes(x = year_month, y = monthly_mean_CVD.adj)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y-%m", date_breaks = "6 month",
+               labels = ) +
+  labs(title = "Supplementary Figure 2 v2 (pop <50000)") +
+  #geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) 
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5), # vertical x labels
+        )
+  
+sfig_2.v2
 ```
 
 ## Sam Section
