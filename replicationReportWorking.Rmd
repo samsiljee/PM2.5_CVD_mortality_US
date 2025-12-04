@@ -32,9 +32,8 @@ df2 <- rbind(
 
 # Merge data
 df3 <- merge(
-    mutate(df2, GEOID = `County Code`, year = Year),
+    mutate(filter(df2, !is.na("Year")), GEOID = `County Code`, year = Year),
     df1,
-    all.x = TRUE,
     by = c("GEOID", "year")
 ) 
 
@@ -63,8 +62,7 @@ df4 <- df3 %>%
             pop.Hispanic,
             CVD.adj
         )
-    ) %>% # Select required columns
-    drop_na() # Remove missing values
+    ) # Select required columns
 ```
 
 ## Iggy Section
