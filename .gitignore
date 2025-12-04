@@ -3,6 +3,9 @@ data/*
 output/*
 input/*
 
+#
+- input/CompMort.csv
+
 # Other files
 *.Rproj
 *.Rproj.user
