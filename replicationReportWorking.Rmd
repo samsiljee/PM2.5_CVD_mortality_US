@@ -22,12 +22,17 @@ library(ggplot2) # graphing
 ```
 
 ```{r}
+# Set seed for randomisation purposes
+set.seed(2025)
+
 # Setup - Load in data file
 # set working directory as source file location
 # Read in upzipped .csv data from "input" folder within
 
+# Read in PM2.5 and evironmental data
 df1 <- read_csv("input/Data_2000-2016_county_monthly_combined.csv")
 
+# Read in overall mortality data
 df2 <- rbind(
   read_csv("input/CompMort_01_08.csv"),
   read_csv("input/CompMort_09_16.csv")
@@ -41,7 +46,7 @@ df3 <- merge(
 )
 
 # Clean data
-df4 <- df3 %>%
+df3 <- df3 %>%
   mutate(
     CVD.adj = as.numeric(`Age Adjusted Rate`, na.rm = TRUE),
     GEOID = as.factor(GEOID)
@@ -67,6 +72,22 @@ df4 <- df3 %>%
     )
   ) # Select required columns
 
+# Add in dummy data for columns missing from mortality data
+missing_columns <- readLines("input/missing_columns.txt")
+
+# Make dummy data with only positive numbers
+dummy_data <- matrix(
+  data = abs(rnorm(length(missing_columns) * nrow(df3))),
+  nrow = nrow(df3),
+  ncol = length(missing_columns)
+)
+
+colnames(dummy_data) <- missing_columns
+
+df4 <- bind_cols(
+  df3,
+  dummy_data
+)
 
 # Read in .shp US countys geospatial data us sf package
 US.county <- st_read("input/US_continental_counties_3103/US_continental_counties_3103.shp")
