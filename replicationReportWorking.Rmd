@@ -14,10 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readr) # read csv file in
 library(dplyr) # wrangling
 library(tidyr) # Remove NAs in merged data
-library(lubridate) # dates | not used?
-library(sf) # for reading .shp data
+library(lubridate) # dates 
+library(sf) # for reading .shp data | fig1a & 1b
 library(tsModel) # for runMean() - e.g. fig 1c
-library(ggplot2) # graphing
+library(ggplot2) # graphing | fig1a & 1b
 
 ```
 
@@ -156,44 +156,9 @@ US.county.F1 <- US.county %>%
 
     -   <https://r-spatial.github.io/sf/articles/sf5.html#ggplot2>
 
-```{r}
-# Using sf package to plot geography/Ca
-# Basic plot of the USA
-plot(st_geometry(US.county.F1))
-
-# basic ggplot test of PM25_mean plot
-ggplot() +
-  geom_sf(data = US.county.F1, aes(fill = PM25_mean)) +
-  # scale_y_continuous(breaks = 34:36)
-  theme_bw()
-```
-
 ##### Data prep for Fig 1a & 1b
 
 ```{r}
-# Make new df with categoies/ranks columns (in prep for color mapping on US map)
-US.county.F1ab <- US.county.F1 %>%
-  mutate(
-    PM25_mean_rank = case_when(
-      PM25_mean > 12 ~ "12.01-13.74",
-      PM25_mean > 9 ~ "9.00-12.00",
-      PM25_mean > 6 ~ "6.00-9.00",
-      PM25_mean > 3 ~ "3.00-6.00",
-      PM25_mean <= 3 ~ "2.15-3.00",
-      TRUE ~ "F" # Default case: if none of the above are true
-    )
-  ) %>%
-  mutate(
-    PM25_chg_rank = case_when(
-      PM25_chg > 20 ~ "20.00-52.99",
-      PM25_chg > 0 ~ "0.00-20.00",
-      PM25_chg > -20 ~ "-20.00-0.00",
-      PM25_chg > -40 ~ "-40.01--20.00",
-      PM25_chg <= -40 ~ "-60.43--40.00",
-      TRUE ~ "F" # Default case: if none of the above are true
-    )
-  )
-
 # Colors used in figure 1a
 fig_1a_colors <- c("#006837", "#86CB67", "#FFFFBF", "#F98E52", "#A50026")
 
@@ -201,51 +166,81 @@ fig_1a_colors <- c("#006837", "#86CB67", "#FFFFBF", "#F98E52", "#A50026")
 fig_1b_colors <- c("#313695", "#74ADD1", "#E0F3F8", "#F98E52", "#A50026")
 ```
 
-##### Figure 1a replication
+##### Figure 1a Replication
 
 ```{r}
-fig_1a <- ggplot() +
-  geom_sf(data = US.county.F1ab, aes(fill = PM25_mean_rank)) +
-  scale_fill_manual(
+fig_1a_rep <- US.county.F1 %>%
+  mutate( # make new column split by thresholds shown in fig1a
+    PM25_mean_rank = case_when(
+      PM25_mean > 12 ~ "12.00-13.74", 
+      PM25_mean > 9 ~ "9.00-12.00",
+      PM25_mean > 6 ~ "6.00-9.00",
+      PM25_mean > 3 ~ "3.00-6.00",
+      PM25_mean <= 3 ~ "2.15-3.00",
+      TRUE ~ "F")) %>% # Default case: if none of the above are true
+  ggplot() + # plot
+  geom_sf(aes(fill = PM25_mean_rank)) +
+  scale_fill_manual( # mapping color to rank/thresholds
     name = "Average PM2.5 \nconcentration (\u00B5g/m\u00b3)",
-    breaks = c(
-      "2.15-3.00", "3.00-6.00", "6.00-9.00",
-      "9.00-12.00", "12.01-13.74"
-    ),
-    values = c(
-      "#006837", "#86CB67", "#FFFFBF",
-      "#F98E52", "#A50026"
-    )
-  ) +
-  labs(title = "Figure 1a") +
-  theme_bw()
+    breaks = c("2.15-3.00",
+               "3.00-6.00",
+               "6.00-9.00", 
+               "9.00-12.00",
+               "12.00-13.74"),
+    values = c("#006837",
+               "#86CB67",
+               "#FFFFBF",
+               "#F98E52",
+               "#A50026")) +
+  theme_bw() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(.92, .17),
+    legend.title = element_text(size = 10, hjust = 1),
+  )
 
-fig_1a
+fig_1a_rep
 ```
 
 ##### Figure 1b Replication
 
 ```{r}
-fig_1b <- ggplot() +
-  geom_sf(data = US.county.F1ab, aes(fill = PM25_chg_rank)) +
-  scale_fill_manual(
+fig_1b_rep <- US.county.F1 %>%
+  mutate( # make new column split by thresholds shown in fig1b
+    PM25_chg_rank = case_when(
+      PM25_chg > 20 ~ "20.00-52.99",
+      PM25_chg > 0 ~ "0.00-20.00",
+      PM25_chg > -20 ~ "-20.00-0.00",
+      PM25_chg > -40 ~ "-40.00--20.00", 
+      PM25_chg <= -40 ~ "-60.43--40.00",
+      TRUE ~ "F")) %>% # Default case: if none of the above are true
+  ggplot() + # plot
+  geom_sf(aes(fill = PM25_chg_rank)) + 
+  scale_fill_manual( # mapping color to rank/thresholds
     name = "Change in PM2.5 \nconcentration (%)",
     breaks = c(
-      "-60.43--40.00", "-40.01--20.00", "-20.00-0.00",
-      "0.00-20.00", "20.00-52.99"
-    ),
+      "-60.43--40.00",
+      "-40.00--20.00",
+      "-20.00-0.00",
+      "0.00-20.00",
+      "20.00-52.99"),
     values = c(
-      "#313695", "#74ADD1", "#E0F3F8",
-      "#F98E52", "#A50026"
-    )
-  ) +
-  labs(title = "Figure 1b") +
-  theme_bw() 
+      "#313695",
+      "#74ADD1",
+      "#E0F3F8",
+      "#F98E52",
+      "#A50026")) +
+  theme_bw() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(.93, .17),
+    legend.title = element_text(size = 10, hjust = 1),
+  )
 
-fig_1b
+fig_1b_rep
 ```
 
-### Figure 1c
+### Figure 1c  (TBC?/stuck?)
 
 #### Figure 1c (Their Code)
 
