@@ -1,0 +1,324 @@
+---
+title: "replicationGames"
+author: "Steph, Sam, Iggy"
+date: "2025-12-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_I4R_replication_report.Rmd
+
+## Setup
+
+```{r}
+# Load Packages
+library(readr) # read csv file in
+library(dplyr) # wrangling
+library(tidyr) # Remove NAs in merged data
+library(lubridate) # dates 
+library(sf) # for reading .shp data | fig1a & 1b
+library(tsModel) # for runMean() - e.g. fig 1c
+library(ggplot2) # graphing | fig1a & 1b
+```
+
+```{r}
+# Set seed for randomisation purposes
+set.seed(2025)
+
+# Setup - Load in data file
+# set working directory as source file location
+# Read in upzipped .csv data from "input" folder within
+
+# Read in PM2.5 and evironmental data | provided by authors
+df1 <- read_csv("input/Data_2000-2016_county_monthly_combined.csv")
+
+# Read in overall mortality data | retrieval attempt from CDC wonder
+df2 <- rbind(
+  read_csv("input/CompMort_01_08.csv"),
+  read_csv("input/CompMort_09_16.csv")
+)
+
+# Merge data 
+df3 <- merge(
+  mutate(filter(df2, !is.na("Year")), GEOID = `County Code`, year = Year),
+  df1,
+  by = c("GEOID", "year")
+)
+
+# Clean data
+df3 <- df3 %>%
+  mutate(
+    CVD.adj = as.numeric(`Age Adjusted Rate`, na.rm = TRUE),
+    GEOID = as.factor(GEOID)
+  ) %>% # change column classes
+  dplyr::select(
+    c(
+      GEOID,
+      year_month,
+      year,
+      month,
+      PM25,
+      NO2,
+      O3,
+      Tmean,
+      dewT,
+      pop.total,
+      pop.Male,
+      pop.Female,
+      pop.White,
+      pop.Black,
+      pop.Hispanic,
+      CVD.adj
+    )
+  ) # Select required columns
+
+# Add in dummy data for columns missing from mortality data
+missing_columns <- readLines("input/missing_columns.txt")
+
+# Make dummy data with only positive numbers
+dummy_data <- matrix(
+  data = abs(rnorm(length(missing_columns) * nrow(df3))),
+  nrow = nrow(df3),
+  ncol = length(missing_columns)
+)
+
+colnames(dummy_data) <- missing_columns
+
+df4 <- bind_cols(
+  df3,
+  dummy_data
+)
+
+# Read in .shp US countys geospatial data us sf package
+US.county <- st_read("input/US_continental_counties_3103/US_continental_counties_3103.shp")
+```
+
+# Successful Replication
+
+## Figure 1ab
+
+#### Figure 1ab (Ma et al's Code)
+
+```{r}
+# using packages dplyr & sf
+
+# re assign df1 "Data_2000-2016_county_monthly_combined.csv" to data
+data <- df1 # added 
+
+## average PM2.5 (Figure 1a)
+PM25.ave <- data %>%
+  group_by(GEOID) %>%
+  summarise(PM25_mean = mean(PM25))
+
+## PM2.5 change (Figure 1b)
+PM25.2000 <- data %>%
+  filter(year == 2000) %>%
+  group_by(GEOID) %>%
+  summarise(PM25_2000 = mean(PM25))
+
+PM25.2016 <- data %>%
+  filter(year == 2016) %>%
+  group_by(GEOID) %>%
+  summarise(PM25_2016 = mean(PM25))
+
+PM25.change <- PM25.2000 %>%
+  left_join(PM25.2016, by = c("GEOID")) %>%
+  mutate(PM25_chg = (PM25_2016 - PM25_2000) / PM25_2000 * 100) %>%
+  dplyr::select(GEOID, PM25_chg)
+
+
+## join with shapefile
+PM25.ave$GEOID <- as.character(PM25.ave$GEOID)
+PM25.change$GEOID <- as.character(PM25.change$GEOID)
+
+US.county.F1 <- US.county %>%
+  left_join(PM25.ave, by = "GEOID") %>%
+  left_join(PM25.change, by = "GEOID")
+```
+
+## Figure 1ab (Our code)
+
+-   Note - "ArcGIS Pro was used to make the final maps." (Github \> Analysis Description.pdf \> 2.2 Descriptive Maps)
+
+    -   Attempting to use the sf package to map information instead.
+
+    -   <https://r-spatial.github.io/sf/articles/sf5.html>
+
+    -   <https://r-spatial.github.io/sf/articles/sf5.html#ggplot2>
+
+##### Colors from figures
+
+```{r}
+# colors were mapped from the original paper using the eyedropper tool 
+# Colors used in figure 1a
+fig_1a_colors <- c("#006837", "#86CB67", "#FFFFBF", "#F98E52", "#A50026")
+
+# Colors used in figure 1b
+fig_1b_colors <- c("#313695", "#74ADD1", "#E0F3F8", "#F98E52", "#A50026")
+```
+
+### Figure 1a Replication
+
+```{r}
+fig_1a_rep <- US.county.F1 %>%
+  mutate( # make new column split by thresholds shown in fig1a
+    PM25_mean_rank = case_when(
+      PM25_mean > 12 ~ "12.00-13.74", 
+      PM25_mean > 9 ~ "9.00-12.00",
+      PM25_mean > 6 ~ "6.00-9.00",
+      PM25_mean > 3 ~ "3.00-6.00",
+      PM25_mean <= 3 ~ "2.15-3.00",
+      TRUE ~ "F")) %>% # Default case: if none of the above are true
+  ggplot() + # plot
+  geom_sf(aes(fill = PM25_mean_rank)) +
+  scale_fill_manual( # mapping color to rank/thresholds
+    name = "Average PM2.5 \nconcentration (\u00B5g/m\u00b3)",
+    breaks = c("2.15-3.00",
+               "3.00-6.00",
+               "6.00-9.00", 
+               "9.00-12.00",
+               "12.00-13.74"),
+    values = c("#006837",
+               "#86CB67",
+               "#FFFFBF",
+               "#F98E52",
+               "#A50026")) +
+  theme_bw() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(.92, .17),
+    legend.title = element_text(size = 10, hjust = 1),
+  )
+
+fig_1a_rep
+```
+
+### Figure 1b Replication
+
+```{r}
+fig_1b_rep <- US.county.F1 %>%
+  mutate( # make new column split by thresholds shown in fig1b
+    PM25_chg_rank = case_when(
+      PM25_chg > 20 ~ "20.00-52.99",
+      PM25_chg > 0 ~ "0.00-20.00",
+      PM25_chg > -20 ~ "-20.00-0.00",
+      PM25_chg > -40 ~ "-40.00--20.00", 
+      PM25_chg <= -40 ~ "-60.43--40.00",
+      TRUE ~ "F")) %>% # Default case: if none of the above are true
+  ggplot() + # plot
+  geom_sf(aes(fill = PM25_chg_rank)) + 
+  scale_fill_manual( # mapping color to rank/thresholds
+    name = "Change in PM2.5 \nconcentration (%)",
+    breaks = c(
+      "-60.43--40.00",
+      "-40.00--20.00",
+      "-20.00-0.00",
+      "0.00-20.00",
+      "20.00-52.99"),
+    values = c(
+      "#313695",
+      "#74ADD1",
+      "#E0F3F8",
+      "#F98E52",
+      "#A50026")) +
+  theme_bw() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(.93, .17),
+    legend.title = element_text(size = 10, hjust = 1),
+  )
+
+fig_1b_rep
+```
+
+------------------------------------------------------------------------
+
+# Attempted
+
+From this point forwards we used
+
+#### Figure 1c 
+
+~~NOTE - COMEBACK TO - TO FIGURE OUT MORTALITY BY RACE DATA FIRST!!!~~
+
+```{r}
+# mortality.CVD_df4 <- df4 %>%
+  
+
+# Taken directly from their code 
+## select PM2.5 data
+data.AP <- data %>%
+  dplyr::select(GEOID, year_month, year, PM25)
+
+## 12-month moving average of PM2.5 concentration
+data.list <- split(data.AP, as.factor(data$GEOID))
+for (j in 1:length(data.list)) {
+  data.list[[j]][, paste0("PM25_lag0", 11)] <- tsModel::runMean(data.list[[j]]$PM25, c(0:11))
+}
+
+data.AP.01to16 <- bind_rows(data.list) %>%
+  filter(year >= 2001) %>%
+  dplyr::select(-PM25, -year)   
+
+```
+
+### Supp Fig 1
+
+### Supp Fig 2
+
+-   ~~Works and generally appears similar but not as granular as the one in the paper...?~~
+
+    -   ~~Also why does it go up in 2017?~~
+
+        -   [~~https://lubridate.tidyverse.org/reference/as_date.html~~](https://lubridate.tidyverse.org/reference/as_date.html){.uri}
+
+```{r}
+# Cut off at <5000
+sfig_2 <- df4 %>%
+  filter(pop.total < 5000) %>%
+  mutate(year_month = lubridate::ym(year_month)) %>% 
+  group_by(year_month) %>%
+  mutate(monthly_mean_CVD.adj = mean(CVD.adj, na.rm = TRUE)) %>%
+  ggplot(aes(x = year_month, y = monthly_mean_CVD.adj)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y-%m", date_breaks = "6 month",
+               labels = ) +
+  labs(title = "Supplementary Figure 2 (pop <5000)") +
+  #geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) 
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5), # vertical x labels
+        )
+  
+sfig_2
+```
+
+Decrease appears more stable when the population cut off is \<50000 rather than \<5000
+
+```{r}
+# Cut off at <50000
+sfig_2.v2 <- df4 %>%
+  filter(pop.total < 50000) %>%
+  mutate(year_month = lubridate::ym(year_month)) %>% 
+  group_by(year_month) %>%
+  mutate(monthly_mean_CVD.adj = mean(CVD.adj, na.rm = TRUE)) %>%
+  ggplot(aes(x = year_month, y = monthly_mean_CVD.adj)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y-%m", date_breaks = "6 month",
+               labels = ) +
+  labs(title = "Supplementary Figure 2 v2 (pop <50000)") +
+  #geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) 
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5), # vertical x labels
+        )
+  
+sfig_2.v2
+```
+
+```{r}
+sessionInfo()
+```
