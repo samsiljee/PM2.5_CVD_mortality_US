@@ -1,58 +1,60 @@
----
-title: "I4R replicationGames (Wellington, NZ)"
-author: "Steph, Sam, Iggy"
-date: "2025-12-04"
-output: github_document
-#output: html_document
----
+I4R replicationGames (Wellington, NZ)
+================
+Steph, Sam, Iggy
+2025-12-04
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## *Replication attempt of (Ma et al., 2023) Racial/ethnic disparities in PM~2.5~-attributable cardiovascular mortality burden in the United States* 
+## *Replication attempt of (Ma et al., 2023) Racial/ethnic disparities in PM<sub>2.5</sub>-attributable cardiovascular mortality burden in the United States*
 
 <https://www.nature.com/articles/s41562-023-01694-7>
 
-# Details 
+# Details
 
 ## Replication attempts
 
--   Figure 1a ➝ `fig_1a_rep` ✓
+- Figure 1a ➝ `fig_1a_rep` ✓
 
--   Figure 1b ➝ `fig_1b_rep` ✓
+- Figure 1b ➝ `fig_1b_rep` ✓
 
--   ~~Figure 1c~~ *➝ see attempted section*
+- ~~Figure 1c~~ *➝ see attempted section*
 
--   ~~Supplementary Figure 2~~ *➝ see attempted section*
+- ~~Supplementary Figure 2~~ *➝ see attempted section*
 
 ## Repository
 
-**All the data and code from our replication attempt are in the following GitHub repository: [*https://github.com/samsiljee/PM2.5_CVD_mortality_US*](https://github.com/samsiljee/PM2.5_CVD_mortality_US){.uri}**
+**All the data and code from our replication attempt are in the
+following GitHub repository:
+<a href="https://github.com/samsiljee/PM2.5_CVD_mortality_US"
+class="uri"><em>https://github.com/samsiljee/PM2.5_CVD_mortality_US</em></a>**
 
-[*Our replication repository was branched from the github repository of the original article (<https://github.com/CHENlab-Yale/PM2.5_CVD_mortality_US>).*]{.smallcaps}
+<span class="smallcaps">*Our replication repository was branched from
+the github repository of the original article
+(<https://github.com/CHENlab-Yale/PM2.5_CVD_mortality_US>).*</span>
 
-### Code 
+### Code
 
-**Final version** (this present file): ***I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US.Rmd***
+**Final version** (this present file):
+***I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US.Rmd***
 
 *Previous version - replicationReportWorking.Rmd*
 
 ### Data
 
-All data is contained within the replication repository, including the data provided by the authors.
+All data is contained within the replication repository, including the
+data provided by the authors.
 
--   *US_continental_counties_3103.zip*
+- *US_continental_counties_3103.zip*
 
--   *Data_2000-2016_county_monthly_combined.7z*
+- *Data_2000-2016_county_monthly_combined.7z*
 
-In addition to the data retrieved from <https://wonder.cdc.gov/cmf-icd10.html> and generated as a part of the replication attempt.
+In addition to the data retrieved from
+<https://wonder.cdc.gov/cmf-icd10.html> and generated as a part of the
+replication attempt.
 
--   *CompMort_01_08.csv*
+- *CompMort_01_08.csv*
 
--   *CompMort_09_16.csv*
+- *CompMort_09_16.csv*
 
--   *missing_columns.txt*
+- *missing_columns.txt*
 
 ------------------------------------------------------------------------
 
@@ -60,7 +62,7 @@ In addition to the data retrieved from <https://wonder.cdc.gov/cmf-icd10.html> a
 
 ### Load Packages
 
-```{r message=FALSE, warning=FALSE}
+``` r
 # Load Packages
 library(readr) # read csv file in
 library(dplyr) # wrangling
@@ -71,9 +73,9 @@ library(tsModel) # for runMean() - e.g. fig 1c
 library(ggplot2) # graphing | fig1a & 1b
 ```
 
-## Prepare Data 
+## Prepare Data
 
-```{r message=FALSE, warning=FALSE, results='hide'}
+``` r
 # Set seed for randomisation purposes
 set.seed(2025)
 
@@ -152,13 +154,15 @@ df4 <- bind_cols(
 
 # Successfully Replicated
 
-This section details the successful replication of Figures 1a & 1b from the primary article. It uses the `df1` and `US.county` data prepared above.
+This section details the successful replication of Figures 1a & 1b from
+the primary article. It uses the `df1` and `US.county` data prepared
+above.
 
 ## Figure 1ab
 
-#### Figure 1ab (Ma et al's Code)
+#### Figure 1ab (Ma et al’s Code)
 
-```{r}
+``` r
 # from 'Figure 1ab.R'
 # using packages dplyr & sf
 
@@ -198,18 +202,23 @@ US.county.F1 <- US.county %>%
 
 ## Figure 1ab (Our code)
 
-This takes the data prepared above & uses a combination of functions from `dplyr`, `sf`, & `ggplot2` to replicate the figures as an alternative to the **ArcGIS Pro** software used in the original article.
+This takes the data prepared above & uses a combination of functions
+from `dplyr`, `sf`, & `ggplot2` to replicate the figures as an
+alternative to the **ArcGIS Pro** software used in the original article.
 
--   *Note: "ArcGIS Pro was used to make the final maps." (Github \> Analysis Description.pdf \> 2.2 Descriptive Maps)*
-    -   *Attempted to use the sf package to map information instead.*
+- *Note: “ArcGIS Pro was used to make the final maps.” (Github \>
+  Analysis Description.pdf \> 2.2 Descriptive Maps)*
+  - *Attempted to use the sf package to map information instead.*
 
-        -   [*https://r-spatial.github.io/sf/articles/sf5.html*](https://r-spatial.github.io/sf/articles/sf5.html){.uri}
+    - <a href="https://r-spatial.github.io/sf/articles/sf5.html"
+      class="uri"><em>https://r-spatial.github.io/sf/articles/sf5.html</em></a>
 
-        -   [*https://r-spatial.github.io/sf/articles/sf5.html#ggplot2*](https://r-spatial.github.io/sf/articles/sf5.html#ggplot2){.uri}
+    - <a href="https://r-spatial.github.io/sf/articles/sf5.html#ggplot2"
+      class="uri"><em>https://r-spatial.github.io/sf/articles/sf5.html#ggplot2</em></a>
 
 ##### Colors from figures
 
-```{r}
+``` r
 # colors were mapped from the original paper using the eyedropper tool 
 # Colors used in figure 1a
 fig_1a_colors <- c("#006837", "#86CB67", "#FFFFBF", "#F98E52", "#A50026")
@@ -220,7 +229,7 @@ fig_1b_colors <- c("#313695", "#74ADD1", "#E0F3F8", "#F98E52", "#A50026")
 
 ### Figure 1a Replication
 
-```{r fig.height=8, fig.width=11}
+``` r
 fig_1a_rep <- US.county.F1 %>%
   mutate( # make new column split by thresholds shown in fig1a
     PM25_mean_rank = case_when(
@@ -254,9 +263,11 @@ fig_1a_rep <- US.county.F1 %>%
 fig_1a_rep
 ```
 
+![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
 ### Figure 1b Replication
 
-```{r fig.height=8, fig.width=11}
+``` r
 fig_1b_rep <- US.county.F1 %>%
   mutate( # make new column split by thresholds shown in fig1b
     PM25_chg_rank = case_when(
@@ -290,16 +301,17 @@ fig_1b_rep <- US.county.F1 %>%
   )
 
 fig_1b_rep
-
 ```
+
+![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ------------------------------------------------------------------------
 
-# Attempted 
+# Attempted
 
 ### Figure 1c (**Ma et al’s Code**)
 
-```{r}
+``` r
 # library(dplyr)
 # library(ggplot2)
 # library(cowplot)
@@ -358,7 +370,7 @@ fig_1b_rep
 
 ### Figure 1c ()
 
-```{r}
+``` r
 # mortality.CVD_df4 <- df4 %>%
 
 
@@ -376,14 +388,15 @@ for (j in 1:length(data.list)) {
 data.AP.01to16 <- bind_rows(data.list) %>%
   filter(year >= 2001) %>%
   dplyr::select(-PM25, -year)
-
 ```
 
 ## Supplementary Figure 2 (our code)
 
-The reproduced figures are generally similar to the original paper; however, the data retrieved from CDC WONDER was a simplified set, so the figures appear less granular.
+The reproduced figures are generally similar to the original paper;
+however, the data retrieved from CDC WONDER was a simplified set, so the
+figures appear less granular.
 
-```{r fig.height=6, fig.width=11}
+``` r
 # Cut off at <5000
 sfig_2 <- df4 %>%
   filter(pop.total < 5000) %>%
@@ -404,7 +417,9 @@ sfig_2 <- df4 %>%
 sfig_2
 ```
 
-```{r fig.height=6, fig.width=11}
+![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
 # Cut off at <50000
 sfig_2.v2 <- df4 %>%
   filter(pop.total < 50000) %>%
@@ -425,9 +440,48 @@ sfig_2.v2 <- df4 %>%
 sfig_2.v2
 ```
 
+![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
 ------------------------------------------------------------------------
 
-```{r}
+``` r
 # end - write out package versions for .html or .md knitted files
 sessionInfo()
 ```
+
+    ## R version 4.4.1 (2024-06-14 ucrt)
+    ## Platform: x86_64-w64-mingw32/x64
+    ## Running under: Windows 10 x64 (build 19045)
+    ## 
+    ## Matrix products: default
+    ## 
+    ## 
+    ## locale:
+    ## [1] LC_COLLATE=English_New Zealand.utf8  LC_CTYPE=English_New Zealand.utf8   
+    ## [3] LC_MONETARY=English_New Zealand.utf8 LC_NUMERIC=C                        
+    ## [5] LC_TIME=English_New Zealand.utf8    
+    ## 
+    ## time zone: Pacific/Auckland
+    ## tzcode source: internal
+    ## 
+    ## attached base packages:
+    ## [1] stats     graphics  grDevices utils     datasets  methods   base     
+    ## 
+    ## other attached packages:
+    ## [1] ggplot2_4.0.1   tsModel_0.6-2   sf_1.0-23       lubridate_1.9.4
+    ## [5] tidyr_1.3.1     dplyr_1.1.4     readr_2.1.6    
+    ## 
+    ## loaded via a namespace (and not attached):
+    ##  [1] generics_0.1.4     class_7.3-22       KernSmooth_2.23-24 hms_1.1.4         
+    ##  [5] digest_0.6.37      magrittr_2.0.3     evaluate_1.0.5     grid_4.4.1        
+    ##  [9] timechange_0.3.0   RColorBrewer_1.1-3 fastmap_1.2.0      e1071_1.7-16      
+    ## [13] DBI_1.2.3          purrr_1.0.2        scales_1.4.0       cli_3.6.3         
+    ## [17] rlang_1.1.4        crayon_1.5.3       units_1.0-0        bit64_4.6.0-1     
+    ## [21] splines_4.4.1      withr_3.0.2        yaml_2.3.10        tools_4.4.1       
+    ## [25] parallel_4.4.1     tzdb_0.5.0         vctrs_0.6.5        R6_2.6.1          
+    ## [29] proxy_0.4-27       lifecycle_1.0.4    classInt_0.4-11    bit_4.6.0         
+    ## [33] vroom_1.6.6        pkgconfig_2.0.3    pillar_1.11.1      gtable_0.3.6      
+    ## [37] glue_1.8.0         Rcpp_1.1.0         xfun_0.54          tibble_3.2.1      
+    ## [41] tidyselect_1.2.1   rstudioapi_0.17.1  knitr_1.50         farver_2.1.2      
+    ## [45] htmltools_0.5.8.1  labeling_0.4.3     rmarkdown_2.30     compiler_4.4.1    
+    ## [49] S7_0.2.1
