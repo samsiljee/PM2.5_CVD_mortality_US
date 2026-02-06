@@ -69,6 +69,7 @@ library(lubridate) # dates
 library(sf) # for reading .shp data | fig1a & 1b
 library(tsModel) # for runMean() - e.g. fig 1c
 library(ggplot2) # graphing | fig1a & 1b
+library(knitr) # for tables display in .md 
 ```
 
 ## Prepare Data
@@ -153,14 +154,14 @@ df4 <- bind_cols(
 #### Preview of data
 
 ```{r paged.print=TRUE}
+# preview data with knitr kable()
 # Provided data
-head(US.county, 3)
-head(df1, 3)
-
+kable(head(US.county))
+kable(head(df1))
 # Adiditional data
-head(df2, 3)
-head(df3, 3)
-head(df4, 3)
+kable(head(df2))
+kable(head(df3))
+kable(head(df4))
 ```
 
 # Successfully Replicated
@@ -369,34 +370,33 @@ fig_1b_rep
 #   theme(legend.position = "none")
 ```
 
-### Figure 1c ()
+### Figure 1c (TBC)
 
 ```{r}
-# mortality.CVD_df4 <- df4 %>%
-
-
-# Taken directly from their code
-## select PM2.5 data
-data.AP <- data %>%
-  dplyr::select(GEOID, year_month, year, PM25)
-
-## 12-month moving average of PM2.5 concentration
-data.list <- split(data.AP, as.factor(data$GEOID))
-for (j in 1:length(data.list)) {
-  data.list[[j]][, paste0("PM25_lag0", 11)] <- tsModel::runMean(data.list[[j]]$PM25, c(0:11))
-}
-
-data.AP.01to16 <- bind_rows(data.list) %>%
-  filter(year >= 2001) %>%
-  dplyr::select(-PM25, -year)
-
+# # mortality.CVD_df4 <- df4 %>%
+# 
+# 
+# # Taken directly from their code
+# ## select PM2.5 data
+# data.AP <- data %>%
+#   dplyr::select(GEOID, year_month, year, PM25)
+# 
+# ## 12-month moving average of PM2.5 concentration
+# data.list <- split(data.AP, as.factor(data$GEOID))
+# for (j in 1:length(data.list)) {
+#   data.list[[j]][, paste0("PM25_lag0", 11)] <- tsModel::runMean(data.list[[j]]$PM25, c(0:11))
+# }
+# 
+# data.AP.01to16 <- bind_rows(data.list) %>%
+#   filter(year >= 2001) %>%
+#   dplyr::select(-PM25, -year)
 ```
 
 ## Supplementary Figure 2 (our code)
 
 The reproduced figures are generally similar to the original paper; however, the data retrieved from CDC WONDER was a simplified set, so the figures appear less granular.
 
-```{r fig.height=6, fig.width=11}
+```{r sfig_2, fig.height=6, fig.width=11}
 # Cut off at <5000
 sfig_2 <- df4 %>%
   filter(pop.total < 5000) %>%
@@ -417,7 +417,7 @@ sfig_2 <- df4 %>%
 sfig_2
 ```
 
-```{r fig.height=6, fig.width=11}
+```{r sfig_2.v2, fig.height=6, fig.width=11}
 # Cut off at <50000
 sfig_2.v2 <- df4 %>%
   filter(pop.total < 50000) %>%
