@@ -150,19 +150,17 @@ df4 <- bind_cols(
 )
 ```
 
-*Provided data*
+#### Preview of data
 
 ```{r paged.print=TRUE}
-head(US.county)
-head(df1)
-```
+# Provided data
+head(US.county, 3)
+head(df1, 3)
 
-*Additional data*
-
-```{r paged.print=TRUE}
-head(df2)
-head(df3)
-head(df4)
+# Adiditional data
+head(df2, 3)
+head(df3, 3)
+head(df4, 3)
 ```
 
 # Successfully Replicated
@@ -235,7 +233,7 @@ fig_1b_colors <- c("#313695", "#74ADD1", "#E0F3F8", "#F98E52", "#A50026")
 
 ### Figure 1a Replication
 
-```{r fig_1a_rep, fig.height=8, fig.width=11}
+```{r fig_1a_rep, fig.height=8, fig.width=11, echo=TRUE}
 fig_1a_rep <- US.county.F1 %>%
   mutate( # make new column split by thresholds shown in fig1a
     PM25_mean_rank = case_when(
@@ -271,7 +269,7 @@ fig_1a_rep
 
 ### Figure 1b Replication
 
-```{r fig_1b_rep, fig.height=8, fig.width=11}
+```{r fig_1b_rep, fig.height=8, fig.width=11, echo=TRUE}
 fig_1b_rep <- US.county.F1 %>%
   mutate( # make new column split by thresholds shown in fig1b
     PM25_chg_rank = case_when(
