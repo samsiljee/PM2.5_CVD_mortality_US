@@ -235,7 +235,7 @@ fig_1b_colors <- c("#313695", "#74ADD1", "#E0F3F8", "#F98E52", "#A50026")
 
 ### Figure 1a Replication
 
-```{r fig.height=8, fig.width=11}
+```{r fig_1a_rep, fig.height=8, fig.width=11}
 fig_1a_rep <- US.county.F1 %>%
   mutate( # make new column split by thresholds shown in fig1a
     PM25_mean_rank = case_when(
@@ -271,7 +271,7 @@ fig_1a_rep
 
 ### Figure 1b Replication
 
-```{r fig.height=8, fig.width=11}
+```{r fig_1b_rep, fig.height=8, fig.width=11}
 fig_1b_rep <- US.county.F1 %>%
   mutate( # make new column split by thresholds shown in fig1b
     PM25_chg_rank = case_when(

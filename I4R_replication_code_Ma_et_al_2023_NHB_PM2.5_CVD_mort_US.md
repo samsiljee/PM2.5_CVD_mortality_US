@@ -402,7 +402,7 @@ fig_1a_rep <- US.county.F1 %>%
 fig_1a_rep
 ```
 
-![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/fig_1a_rep-1.png)<!-- -->
 
 ### Figure 1b Replication
 
@@ -442,7 +442,7 @@ fig_1b_rep <- US.county.F1 %>%
 fig_1b_rep
 ```
 
-![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/fig_1b_rep-1.png)<!-- -->
 
 ------------------------------------------------------------------------
 
@@ -556,7 +556,7 @@ sfig_2 <- df4 %>%
 sfig_2
 ```
 
-![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 # Cut off at <50000
@@ -579,7 +579,7 @@ sfig_2.v2 <- df4 %>%
 sfig_2.v2
 ```
 
-![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ------------------------------------------------------------------------
 
