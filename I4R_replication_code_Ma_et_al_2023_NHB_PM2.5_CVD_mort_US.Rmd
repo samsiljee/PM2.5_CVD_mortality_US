@@ -28,31 +28,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Repository
 
-**All the data and code from our replication attempt are in the following GitHub repository: [*https://github.com/samsiljee/PM2.5_CVD_mortality_US*](https://github.com/samsiljee/PM2.5_CVD_mortality_US){.uri}**
+**All the ~~data and~~ code from our replication attempt are in the following GitHub repository: [*https://github.com/samsiljee/PM2.5_CVD_mortality_US*](https://github.com/samsiljee/PM2.5_CVD_mortality_US){.uri}**
 
 [*Our replication repository was branched from the github repository of the original article (<https://github.com/CHENlab-Yale/PM2.5_CVD_mortality_US>).*]{.smallcaps}
 
 ### Code
 
-**Final version** (this present file): ***I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US.Rmd***
+**Final version** (this present file - just a slightly cleaner display version): ***I4R_replication_code_Ma_et_al_2023_NHB_PM2.5_CVD_mort_US.Rmd***
 
-*Previous version - replicationReportWorking.Rmd*
+*Previous version - replicationReportWorking.Rmd (used in report)*
 
 ### Data
 
-All data is contained within the replication repository, including the data provided by the authors.
-
--   *US_continental_counties_3103.zip*
-
--   *Data_2000-2016_county_monthly_combined.7z*
-
-In addition to the data retrieved from <https://wonder.cdc.gov/cmf-icd10.html> and generated as a part of the replication attempt.
-
--   *CompMort_01_08.csv*
-
--   *CompMort_09_16.csv*
-
--   *missing_columns.txt*
+see the [data_sourcing.md](https://github.com/samsiljee/PM2.5_CVD_mortality_US/blob/main/data_sourcing.md)
 
 ------------------------------------------------------------------------
 
@@ -151,17 +139,15 @@ df4 <- bind_cols(
 )
 ```
 
-#### Preview of data
-
-```{r paged.print=TRUE}
+```{r include=FALSE, paged.print=TRUE}
 # preview data with knitr kable()
 # Provided data
-kable(head(US.county))
-kable(head(df1))
+#kable(head(US.county))
+#kable(head(df1))
 # Adiditional data
-kable(head(df2))
-kable(head(df3))
-kable(head(df4))
+#kable(head(df2))
+#kable(head(df3))
+#kable(head(df4))
 ```
 
 # Successfully Replicated
@@ -311,9 +297,9 @@ fig_1b_rep
 
 # Attempted
 
-### Figure 1c (**Ma et al’s Code**)
+### ~~Figure 1c (**Ma et al’s Code**)~~
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 # library(dplyr)
 # library(ggplot2)
 # library(cowplot)
@@ -370,9 +356,9 @@ fig_1b_rep
 #   theme(legend.position = "none")
 ```
 
-### Figure 1c (TBC)
+### ~~Figure 1c (TBC)~~
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 # # mortality.CVD_df4 <- df4 %>%
 # 
 # 
